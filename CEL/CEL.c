@@ -200,7 +200,7 @@ void CEL_evaluate(char* str, char* output, int size)
 
             /* extract expression between start and stop tags */
             char expression[512] = { 0 };
-            memcpy(expression, start + 1, stopExpr - str - 1);
+            memcpy(expression, start + 1, (stopExpr) - (start + 1));
             
             /* analyse expression */
             CEL_expr_t* e = CEL_parseExpression(expression);
