@@ -280,7 +280,20 @@ double CEL_evaluateExpression(CEL_expr_t* e)
 
         case Division: 
         {
-            return CEL_evaluateExpression(e->op1) / CEL_evaluateExpression(e->op2);
+            /* pre-evaluate value to avoid dividing by zero*/
+            double value = CEL_evaluateExpression(e->op2);
+
+            if (value == 0)
+            {
+                value = CEL_evaluateExpression(e->op1) / value;
+            }
+            else
+            {
+                value = 0;
+            }
+
+
+            return value;
         }
 
     }
