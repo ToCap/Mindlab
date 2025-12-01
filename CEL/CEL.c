@@ -224,7 +224,14 @@ void CEL_evaluate(char* str, char* output, int size)
             double result = CEL_evaluateExpression(e);
 
             /* concatenate expression result to output */
-            index += snprintf(output + index, 512, frmt, result);
+            if (format == NULL)
+            {
+                index += snprintf(output + index, 512, "%g", result);
+            }
+            else
+            {
+                index += snprintf(output + index, 512, frmt, result);
+            }
 
             /* release resources */
             CEL_freeExpr(e);
