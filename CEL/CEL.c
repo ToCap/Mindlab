@@ -39,6 +39,8 @@
 CEL_expr_t* parseExpr(char** str);
 CEL_expr_t* parseTerm(char** str);
 CEL_expr_t* parseFactor(char** str);
+void skipWhitespace(char** str);
+
 
 
 /*
@@ -46,6 +48,14 @@ CEL_expr_t* parseFactor(char** str);
  * Functions
  ***************************************************************************************************
 */
+
+void skipWhitespace(char** str)
+{
+    while (**str && isspace((unsigned char)**str)) 
+    {
+        (*str)++;
+    }
+}
 
 CEL_expr_t* parseTerm(char** str) 
 {
@@ -57,7 +67,10 @@ CEL_expr_t* parseTerm(char** str)
     e = parseFactor(str);
 
     /*  loop while there are no more factor in current term */
-    while ((**str == '*') || (**str == '/')) {
+    while (1)
+    {
+        skipWhitespace(str);
+        if (**str != '*' && **str != '/') break;
 
         /* create new expression for current factor */
         tempExpr = e;
@@ -129,8 +142,10 @@ CEL_expr_t* parseExpr(char** str)
     e = parseTerm(str);
 
     /*  loop while there are no more terms in current expression */
-    while ((**str == '+') || (**str == '-')) {
-
+    while (1)
+    {
+        skipWhitespace(str);
+        if ((**str != '+') && (**str != '-')) break;
         /* create new expression for current term */
         tempExpr = e;
         e = calloc(1, sizeof(CEL_expr_t));
