@@ -86,3 +86,15 @@ extern void CEL_freeExpr(CEL_expr_t* e);
  * @return The result of the evaluation as a double
  */
 extern double CEL_evaluateExpression(CEL_expr_t* e);
+
+
+/*
+ * Replaces variables of the form _key_ with their corresponding values in the input string
+ *
+ * str    : input string
+ * output : output string
+ * size   : size of the output buffer
+ * count  : number of key/value pairs
+ * ...    : N pairs of (char* key, double value)
+ */
+extern void CEL_replaceVariables(const char* str, char* output, int size, int count, ...);

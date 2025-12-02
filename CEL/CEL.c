@@ -25,6 +25,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdarg.h>
 
 #include "CEL.h"
 #include "CEL_Types.h"
@@ -213,8 +214,8 @@ void CEL_evaluate(char* str, char* output, int size)
                 skipWhitespace(&fmt_start);//trim leading whitespace
                 char* fmt_end = stop;
 
-                /*trim trailing whitespace*/
-                while (fmt_end > fmt_start && isspace((unsigned char)*(fmt_end - 1))) fmt_end--;
+                /* trim trailing whitespace */
+                while (fmt_end > fmt_start && isspace((unsigned char)*(fmt_end - 1))) fmt_end --;
 
                 /* compute size of format information */
                 size_t fmt_len = fmt_end - fmt_start;
@@ -347,4 +348,95 @@ void CEL_freeExpr(CEL_expr_t* e)
 
     free(e);
 
+}
+
+
+
+void CEL_replaceVariables(const char* str, char* output, int size, int count, ...)
+{
+    va_list args;
+    va_start(args, count);
+
+    /* copy input into a temporary buffer */
+    char buffer[1024];
+    const char* s = str;
+    char* b = buffer;
+    while (*s && (b - buffer < (int)(sizeof(buffer) - 1))) *b++ = *s++;
+    *b = '\0';
+
+    /* iterate over all key/value pairs */
+    for (int i = 0; i < count; i++)
+    {
+        char* key = va_arg(args, char*);
+        double value = va_arg(args, double);
+
+        /* build pattern _key_ */
+        char pattern[128];
+        char* ppat = pattern;
+        *ppat++ = '_';
+        const char* k = key;
+        while (*k) *ppat++ = *k++;
+        *ppat++ = '_';
+        *ppat = '\0';
+
+        /* manually compute pattern length */
+        int pat_len = 0;
+        while (pattern[pat_len] != '\0') pat_len++;
+
+        char temp[1024];
+        char* t = temp;
+        const char* p = buffer;
+
+        while (*p)
+        {
+            /* check if pattern matches at current position */
+            const char* pp = pattern;
+            const char* pc = p;
+            int match = 1;
+            while (*pp)
+            {
+                if (*pp != *pc)
+                {
+                    match = 0;
+                    break;
+                }
+                pp++; pc++;
+            }
+
+            if (match)
+            {
+                /* pattern found, append value */
+                char valbuf[64];
+                int n = snprintf(valbuf, sizeof(valbuf), "%g", value);
+                char* v = valbuf;
+                while (*v && (t - temp < (int)(sizeof(temp) - 1))) *t++ = *v++;
+
+                /* skip past the pattern in input */
+                p += pat_len;
+            }
+            else
+            {
+                /* copy current character */
+                if (t - temp < (int)(sizeof(temp) - 1)) *t++ = *p;
+                p++;
+            }
+        }
+
+        *t = '\0';
+
+        /* copy temp back to buffer for next replacement */
+        char* src = temp;
+        b = buffer;
+        while (*src && (b - buffer < (int)(sizeof(buffer) - 1))) *b++ = *src++;
+        *b = '\0';
+    }
+
+    va_end(args);
+
+    /* copy final buffer to output */
+    char* out = output;
+    char* end = output + size - 1;
+    b = buffer;
+    while (*b && out < end) *out++ = *b++;
+    *out = '\0';
 }
