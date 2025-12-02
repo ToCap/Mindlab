@@ -209,7 +209,21 @@ void CEL_evaluate(char* str, char* output, int size)
             if ((format > start) && (format < stop))
             {
                 /* extract format information */
-                memcpy(frmt, format + 1, stop - format - 1);
+                char* fmt_start = format + 1;
+                skipWhitespace(&fmt_start);//trim leading whitespace
+                char* fmt_end = stop;
+
+                /*trim trailing whitespace*/
+                while (fmt_end > fmt_start && isspace((unsigned char)*(fmt_end - 1))) fmt_end--;
+
+                /* compute size of format information */
+                size_t fmt_len = fmt_end - fmt_start;
+                if (fmt_len >= sizeof(frmt)) fmt_len = sizeof(frmt) - 1;
+
+                /* copy format information */
+                memcpy(frmt, fmt_start, fmt_len);
+                frmt[fmt_len] = '\0';
+                
                 stopExpr = format;/* force stop tag to ignore format for expressionn */
             }
 
