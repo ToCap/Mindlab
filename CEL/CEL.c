@@ -258,6 +258,19 @@ void CEL_evaluate(char* str, char* output, int size)
         start = strchr(start + 1, '{');
     }
 
+    if (stop != NULL)
+    {
+        stop ++;
+        int remaining = strlen(stop);
+        if (index + remaining < size)
+        {
+            memcpy(output + index, stop, remaining);
+            index += remaining;
+        }
+    }
+
+    output[index] = '\0';
+
 }
 
 CEL_expr_t* CEL_parseExpression(char* str)
@@ -297,7 +310,7 @@ double CEL_evaluateExpression(CEL_expr_t* e)
             /* pre-evaluate value to avoid dividing by zero*/
             double value = CEL_evaluateExpression(e->op2);
 
-            if (value == 0)
+            if (value != 0)
             {
                 value = CEL_evaluateExpression(e->op1) / value;
             }
