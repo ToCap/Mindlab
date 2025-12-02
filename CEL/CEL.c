@@ -237,14 +237,18 @@ void CEL_evaluate(char* str, char* output, int size)
             /* evaluate expression */
             double result = CEL_evaluateExpression(e);
 
-            /* concatenate expression result to output */
-            if (format == NULL)
+            /* check validty of embedded format */
+            const char* DEFAULT_FORMAT = "%g";
+            char* frmtptr = DEFAULT_FORMAT;
+            if (format != NULL)
             {
-                index += snprintf(output + index, 512, "%g", result);
+                frmtptr = frmt;
             }
-            else
+
+            /* concatenate expression result to output */
+            if (index < size)
             {
-                index += snprintf(output + index, 512, frmt, result);
+                index += snprintf(output + index, size - index, frmtptr, result);
             }
 
             /* release resources */
