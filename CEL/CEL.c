@@ -1,6 +1,6 @@
 /*
  ***************************************************************************************************
- * MIRAGE - the open source runtime abstraction for Mindstorm https://github.com/ToCap/Mars
+ * MindLab - the open source programming language for Mindstorm https://github.com/ToCap/Mars
  *
  * Copyright (C) 2022  GC-MS Software (ThomTheCat)
  *
